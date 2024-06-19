@@ -1,0 +1,45 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Transform: "AWS::Serverless-2016-10-31"
+Description: Typing Speed Backend
+
+Resources:
+  TypingSpeedTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: TypingSpeedTable
+      AttributeDefinitions:
+        - AttributeName: UserID
+          AttributeType: S
+      KeySchema:
+        - AttributeName: UserID
+          KeyType: HASH
+      ProvisionedThroughput:
+        ReadCapacityUnits: 5
+        WriteCapacityUnits: 5
+
+  TypingSpeedFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: src/index.handler
+      Runtime: nodejs20.x
+      Architectures:
+        - x86_64
+      MemorySize: 128
+      Timeout: 30
+      Environment:
+        Variables:
+          TABLE_NAME: !Ref TypingSpeedTable
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref TypingSpeedTable
+      Events:
+        ApiEvent:
+          Type: Api
+          Properties:
+            Path: /update-typing-speed
+            Method: post
+
+Outputs:
+  TypingSpeedApi:
+    Description: "API Gateway endpoint URL for Typing Speed function"
+    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/update-typing-speed/"
