@@ -2,6 +2,14 @@ AWSTemplateFormatVersion: "2010-09-09"
 Transform: "AWS::Serverless-2016-10-31"
 Description: Typing Speed Backend
 
+Globals:
+  Api:
+    Cors:
+      AllowOrigin: "'https://d1vklekig7eztq.cloudfront.net'"
+      AllowMethods: "'PUT, OPTIONS'"
+      AllowCredentials: true
+      AllowHeaders: "'Content-Type,X-CSRF-TOKEN'"
+
 Resources:
   TypingSpeedTable:
     Type: AWS::DynamoDB::Table
@@ -37,7 +45,7 @@ Resources:
           Type: Api
           Properties:
             Path: /update-typing-speed
-            Method: post
+            Method: put
 
 Outputs:
   TypingSpeedApi:

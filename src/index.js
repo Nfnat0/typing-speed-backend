@@ -3,12 +3,26 @@ const dynamodb = new AWS.DynamoDB.DocumentClient();
 const TABLE_NAME = process.env.TABLE_NAME;
 
 exports.handler = async (event) => {
-  const body = JSON.parse(event.body);
-  const { userId, highScore, numOfChars } = body;
+  const headers = {
+    "Access-Control-Allow-Origin": "https://d1vklekig7eztq.cloudfront.net",
+    "Access-Control-Allow-Headers": "Content-Type,X-CSRF-TOKEN",
+    "Access-Control-Allow-Methods": "PUT, OPTIONS",
+  };
 
-  if (!userId || highScore === undefined || numOfChars === undefined) {
+  if (event.httpMethod === "OPTIONS") {
+    return {
+      statusCode: 200,
+      headers,
+      body: JSON.stringify({}),
+    };
+  }
+  const body = JSON.parse(event.body);
+  const { userId, highScore, totalCharacters } = body;
+
+  if (!userId || highScore === undefined) {
     return {
       statusCode: 400,
+      headers,
       body: JSON.stringify({ message: "Missing parameters" }),
     };
   }
@@ -22,16 +36,13 @@ exports.handler = async (event) => {
       .promise();
 
     let newHighScore = highScore;
-    let newNumOfChars = numOfChars;
 
     if (userRecord.Item) {
       const existingHighScore = userRecord.Item.HighScore;
-      const existingNumOfChars = userRecord.Item.NumOfChars;
 
       if (highScore <= existingHighScore) {
         newHighScore = existingHighScore;
       }
-      newNumOfChars += existingNumOfChars;
     }
 
     await dynamodb
@@ -40,22 +51,22 @@ exports.handler = async (event) => {
         Item: {
           UserID: userId,
           HighScore: newHighScore,
-          NumOfChars: newNumOfChars,
         },
       })
       .promise();
 
     return {
       statusCode: 200,
+      headers,
       body: JSON.stringify({
         UserID: userId,
         HighScore: newHighScore,
-        NumOfChars: newNumOfChars,
       }),
     };
   } catch (error) {
     return {
       statusCode: 500,
+      headers,
       body: JSON.stringify({
         message: "Internal Server Error",
         error: error.message,
