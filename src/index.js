@@ -1,10 +1,11 @@
 const AWS = require("aws-sdk");
 const dynamodb = new AWS.DynamoDB.DocumentClient();
 const TABLE_NAME = process.env.TABLE_NAME;
+const ALLOWED_ORIGIN = process.env.ALLOWED_ORIGIN;
 
 exports.handler = async (event) => {
   const headers = {
-    "Access-Control-Allow-Origin": "https://d1vklekig7eztq.cloudfront.net",
+    "Access-Control-Allow-Origin": ALLOWED_ORIGIN,
     "Access-Control-Allow-Headers": "Content-Type,X-CSRF-TOKEN",
     "Access-Control-Allow-Methods": "PUT, OPTIONS",
   };

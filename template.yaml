@@ -37,6 +37,7 @@ Resources:
       Environment:
         Variables:
           TABLE_NAME: !Ref TypingSpeedTable
+          ALLOWED_ORIGIN: "https://d1vklekig7eztq.cloudfront.net"
       Policies:
         - DynamoDBCrudPolicy:
             TableName: !Ref TypingSpeedTable
